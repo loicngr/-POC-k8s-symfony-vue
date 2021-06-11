@@ -1,0 +1,4 @@
+vendor
+.gitlab
+var/cache/*
+Dockerfile

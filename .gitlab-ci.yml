@@ -1,0 +1,108 @@
+image: docker:20.10.7
+
+variables:
+  APP_NAME: app_name
+  BACKEND: ./app-code/back
+  FRONTEND: ./app-code/front
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - $BACKEND/vendor
+    - $FRONTEND/.npm
+
+stages:
+  - build
+  - push
+
+.docker_login: &docker_login
+  services:
+    - docker:20.10.7-dind
+  before_script:
+    - echo -n $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+
+build back:
+  stage: build
+  <<: *docker_login
+  only:
+    refs:
+      - master
+    changes:
+      - $BACKEND/src/**/*
+      - $BACKEND/app/**/*
+      - $BACKEND/web/**/*
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest-back || true
+    - >
+      docker build
+      --pull
+      --build-arg VCS_REF=$CI_COMMIT_SHA
+      --build-arg VCS_URL=$CI_PROJECT_URL
+      --cache-from $CI_REGISTRY_IMAGE:latest-back
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back
+      $BACKEND/
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back
+
+build front:
+  stage: build
+  <<: *docker_login
+  only:
+    refs:
+      - master
+    changes:
+      - $FRONTEND/src/**/*
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest-front || true
+    - >
+      docker build
+      --pull
+      --build-arg VCS_REF=$CI_COMMIT_SHA
+      --build-arg VCS_URL=$CI_PROJECT_URL
+      --cache-from $CI_REGISTRY_IMAGE:latest-front
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front
+      $FRONTEND/
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front
+
+push back latest:
+  variables:
+    GIT_STRATEGY: none
+  <<: *docker_login
+  stage: push
+  only:
+    refs:
+      - master
+    changes:
+      - $BACKEND/src/**/*
+      - $BACKEND/app/**/*
+      - $BACKEND/web/**/*
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back $CI_REGISTRY_IMAGE:latest-back
+    - docker push $CI_REGISTRY_IMAGE:latest-back
+
+push front latest:
+  variables:
+    GIT_STRATEGY: none
+  <<: *docker_login
+  stage: push
+  only:
+    refs:
+      - master
+    changes:
+      - $FRONTEND/src/**/*
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front $CI_REGISTRY_IMAGE:latest-front
+    - docker push $CI_REGISTRY_IMAGE:latest-front
+
+push tag:
+  variables:
+    GIT_STRATEGY: none
+  <<: *docker_login
+  stage: push
+  only:
+    - tags
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
