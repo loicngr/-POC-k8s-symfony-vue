@@ -27,12 +27,20 @@ spec:
       serviceAccountName: {{ include "back.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init-database
+          image: busybox:1.28
+          command: ['sh', '-c', "until nslookup app-mariadb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for app-mariadb; sleep 2; done"]
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - mountPath: "/config"
+              name: config
+              readOnly: false
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -55,6 +63,10 @@ spec:
             httpGet:
               path: /version
               port: http
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "cat /config/parameters.yml | yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' /code/app/config/parameters.yml -"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -69,3 +81,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: symfony
+            items:
+              - key: "parameters.yml"
+                path: "parameters.yml"

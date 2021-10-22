@@ -4,6 +4,7 @@ variables:
   APP_NAME: app_name
   BACKEND: ./app-code/back
   FRONTEND: ./app-code/front
+  API_URL: $ENV_API_URL
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -32,13 +33,13 @@ build back:
       - $BACKEND/app/**/*
       - $BACKEND/web/**/*
   script:
-    - docker pull $CI_REGISTRY_IMAGE:latest-back || true
+    - docker pull $CI_REGISTRY_IMAGE/backend:latest || true
     - >
       docker build
       --pull
       --build-arg VCS_REF=$CI_COMMIT_SHA
       --build-arg VCS_URL=$CI_PROJECT_URL
-      --cache-from $CI_REGISTRY_IMAGE:latest-back
+      --cache-from $CI_REGISTRY_IMAGE/backend:latest
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back
       $BACKEND/
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back
@@ -52,13 +53,14 @@ build front:
     changes:
       - $FRONTEND/src/**/*
   script:
-    - docker pull $CI_REGISTRY_IMAGE:latest-front || true
+    - docker pull $CI_REGISTRY_IMAGE/frontend:latest || true
     - >
       docker build
       --pull
       --build-arg VCS_REF=$CI_COMMIT_SHA
       --build-arg VCS_URL=$CI_PROJECT_URL
-      --cache-from $CI_REGISTRY_IMAGE:latest-front
+      --build-arg ENV_API_URL=$API_URL
+      --cache-from $CI_REGISTRY_IMAGE/frontend:latest
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front
       $FRONTEND/
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front
@@ -77,8 +79,8 @@ push back latest:
       - $BACKEND/web/**/*
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back $CI_REGISTRY_IMAGE:latest-back
-    - docker push $CI_REGISTRY_IMAGE:latest-back
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-back $CI_REGISTRY_IMAGE/backend:latest
+    - docker push $CI_REGISTRY_IMAGE/backend:latest
 
 push front latest:
   variables:
@@ -92,8 +94,8 @@ push front latest:
       - $FRONTEND/src/**/*
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front $CI_REGISTRY_IMAGE:latest-front
-    - docker push $CI_REGISTRY_IMAGE:latest-front
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA-front $CI_REGISTRY_IMAGE/frontend:latest
+    - docker push $CI_REGISTRY_IMAGE/frontend:latest
 
 push tag:
   variables:

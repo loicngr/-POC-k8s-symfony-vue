@@ -3,12 +3,12 @@
 GET_PWD="$(pwd)"
 TOOLS_DIR="$GET_PWD/tools"
 
-echo "Nom du namespace ? (défaut: default)"
+echo "Nom du namespace ? (défaut: app)"
 read namespace
 
 if [ -z "$namespace" ]
 then
-      namespace="default"
+      namespace="app"
 fi
 
 echo "Nom du pod cible ?"

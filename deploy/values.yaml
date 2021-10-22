@@ -4,12 +4,14 @@ mariadb:
   auth:
     rootPassword: "password"
     database: databaseName
+#  metrics:
+#    enabled: true
 
 back:
   image:
     repository: registry.gitlab.com/username/repo_name
     pullPolicy: IfNotPresent
-    tag: "latest-back"
+    tag: "latest"
 
   imagePullSecrets:
     - name: gitlab-registry
@@ -19,11 +21,21 @@ back:
     port: 80
     nodePort: 30001
 
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: api.127.0.0.1.nip.io # replace 127.0.0.1 with minikube ip
+        paths:
+          - path: /
+            pathType: Prefix
+
 front:
   image:
     repository: registry.gitlab.com/username/repo_name
     pullPolicy: IfNotPresent
-    tag: "latest-front"
+    tag: "latest"
 
   imagePullSecrets:
     - name: gitlab-registry
@@ -32,3 +44,13 @@ front:
     type: NodePort
     port: 80
     nodePort: 30002
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: front.127.0.0.1.nip.io # replace 127.0.0.1 with minikube ip
+        paths:
+          - path: /
+            pathType: Prefix

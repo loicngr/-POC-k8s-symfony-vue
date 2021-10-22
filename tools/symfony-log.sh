@@ -1,12 +1,12 @@
 #!/bin/sh
 
 echo #espace row
-echo "Nom du namespace ? (défaut: default)"
+echo "Nom du namespace ? (défaut: app)"
 read namespace
 
 if [ -z "$namespace" ]
 then
-      namespace="default"
+      namespace="app"
 fi
 
 echo #espace row

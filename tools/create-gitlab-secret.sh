@@ -1,11 +1,11 @@
 #!/bin/sh
 
-echo "Le namespace name ? (défaut: default)"
+echo "Le namespace name ? (défaut: app)"
 read namespace
 
 if [ -z "$namespace" ]
 then
-      namespace="default"
+      namespace="app"
 fi
 
 echo "Username gitlab ? "

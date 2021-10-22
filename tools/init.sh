@@ -15,11 +15,11 @@ read -p "> Lancer le helm install ? (y/n)" execHelmDeploy
 
 if [ "$execHelmDeploy" = "y" ]; then
   echo #espace row
-  echo "Le namespace name ? (défaut: default)"
+  echo "Le namespace name ? (défaut: app)"
   read namespace
 
   if [ -z "$namespace" ]; then
-        namespace="default"
+        namespace="app"
   fi;
 
   echo #espace row
@@ -34,7 +34,13 @@ if [ "$execHelmDeploy" = "y" ]; then
 fi;
 
 echo #espace row
-echo "** Le container mariadb doit être déjà créé pour la suite."
+echo #espace row
+echo #espace row
+echo #espace row
+echo "** Le container mariadb doit être déjà créé et lancé pour la suite."
+echo #espace row
+echo #espace row
+echo #espace row
 echo #espace row
 read -p "> Importation du dump dans mariadb ? (y/n)" execMariaDBDump
 
@@ -42,12 +48,11 @@ if [ "$execMariaDBDump" = "y" ]; then
   $TOOLS_DIR/import-dump-mariadb.sh
 fi;
 
-echo #espace row
-read -p "> Mise à jour du fichier parameters.yml ? (y/n)" execUpdateParameters
-
-if [ "$execUpdateParameters" = "y" ]; then
-  $TOOLS_DIR/default-parameters.sh
-fi;
+#read -p "> Mise à jour du fichier parameters.yml ? (y/n)" execUpdateParameters
+#
+#if [ "$execUpdateParameters" = "y" ]; then
+#  $TOOLS_DIR/default-parameters.sh
+#fi;
 
 echo #espace row
 read -p "> Lancer les migrations 'd:m:m' ? (y/n)" execDoctrineMM

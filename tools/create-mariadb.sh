@@ -4,12 +4,12 @@ GET_PWD="$(pwd)"
 TOOLS_DIR="$GET_PWD/tools"
 
 echo #espace row
-echo "Nom du namespace ? (défaut: default)"
+echo "Nom du namespace ? (défaut: app)"
 read namespace
 
 if [ -z "$namespace" ]
 then
-      namespace="default"
+      namespace="app"
 fi
 
 echo #espace row
@@ -25,7 +25,7 @@ then
 fi
 
 echo #espace row
-echo "Nom de la base de données ? (défaut: default)"
+echo "Nom de la base de données ? (défaut: databaseName)"
 read dbName
 
 if [ -z "$dbName" ]

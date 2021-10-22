@@ -1,4 +1,8 @@
 vendor
 .gitlab
+postman
 var/cache/*
+
+.gitlab-ci.yml
+app_test_dump.sql
 Dockerfile
