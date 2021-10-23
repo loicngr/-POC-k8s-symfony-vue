@@ -1,7 +1,7 @@
 # Setup
 - Configuration
     - Création du fichier **_parameters.yml_** dans _**/deploy/charts/back/config/**_
-        - Y renseigner les variables qui seront merge avec le fichier générer lors du composer install
+        - Y renseigner les variables qui seront merge avec le fichier généré lors du "composer install"
         
 # Mise en ligne
 - ```shell
