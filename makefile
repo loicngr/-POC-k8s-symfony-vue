@@ -1,4 +1,4 @@
-K8S_NAMESPACE=sekur
+K8S_NAMESPACE=namespace_test
 K8S_HELM_RELEASE_NAME=app
 K8S_HELM_CHARTS_DIR=./deploy
 TOOLS_DIR=./tools
